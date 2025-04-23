@@ -1,0 +1,36 @@
+[
+    {
+        "id": 1,
+        "name": "𝙀𝙨𝙘𝙖𝙥𝙚 𝙁𝙧𝙤𝙢 𝙈𝙖𝙩𝙧𝙞𝙭",
+        "company": "Aung Group Of Business",
+        "owner": "thefoolsstudio3@gmail.com",
+        "image": "/main/image/product/mine/Escape_From_Matrix.png",
+        "description": "Very Good",
+        "color": "Black",
+        "contact": "Telegram: @slim_ernest",
+        "variations": [
+            { "id": 1, "name": "S", "price": 0, "currency": "MMK", "image": "/main/image/product/mine/Escape_From_Matrix.png" },
+            { "id": 2, "name": "M", "price": 45000, "currency": "MMK", "image": "/main/image/product/mine/Escape_From_Matrix.png" },
+            { "id": 3, "name": "L", "price": 0, "currency": "MMK", "image": "/main/image/product/mine/Escape_From_Matrix.png" },
+            { "id": 4, "name": "XL", "price": 0, "currency": "MMK", "image": "/main/image/product/mine/Escape_From_Matrix.png" },
+            { "id": 5, "name": "2XL", "price": 0, "currency": "MMK", "image": "/main/image/product/mine/Escape_From_Matrix.png" }
+        ]
+    },
+    {
+        "id": 2,
+        "name": "𝗙𝗶𝗿𝘀𝘁 𝗗𝗿𝗼𝗽 𝗢𝗳 𝗧𝗵𝗲 𝗬𝗲𝗮𝗿",
+        "company": "Aung Group Of Business",
+        "owner": "thefoolsstudio3@gmail.com",
+        "image": "/main/image/product/mine/First_Drop_Of_The_Year.png",
+        "description": "Very Good",
+        "color": "Black & White",
+        "contact": "Telegram: @slim_ernest",
+        "variations": [
+            { "id": 1, "name": "S", "price": 0, "currency": "MMK", "image": "/main/image/product/mine/First_Drop_Of_The_Year.png" },
+            { "id": 2, "name": "M", "price": 45000, "currency": "MMK", "image": "/main/image/product/mine/First_Drop_Of_The_Year.png" },
+            { "id": 3, "name": "L", "price": 0, "currency": "MMK", "image": "/main/image/product/mine/First_Drop_Of_The_Year.png" },
+            { "id": 4, "name": "XL", "price": 0, "currency": "MMK", "image": "/main/image/product/mine/First_Drop_Of_The_Year.png" },
+            { "id": 5, "name": "XXL", "price": 0, "currency": "MMK", "image": "/main/image/product/mine/First_Drop_Of_The_Year.png" }
+        ]
+    }
+]

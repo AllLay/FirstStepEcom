@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./image/privilege-logo.png">
+    <title>Sign In</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Arimo:wght@400..700&family=Fira+Code:wght@300..700&family=Montserrat:wght@100..900&family=Roboto:wght@100..900&display=swap');
+
+        body {
+            background-color: #1e1e1e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: "Roboto", sans-serif;
+        }
+        
+        form {
+            background-color: #0e0d0d;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: left;
+            width: 500px;
+            height: 400px;
+        }
+        
+        h1 {
+            color: #fff;
+        }
+        
+        input {
+            width: 100%;
+            padding: 20px 0px;
+            margin: 10px -5px;
+            border: none;
+            border-radius: 10px;
+            background-color: #282525;
+        }
+
+        input::placeholder {
+            padding-left: 25px;
+            font-size: medium;
+            color: white;
+        }
+
+        input:hover {
+            background-color: #2E3130;
+        }
+
+        .forgot {
+            background: none;
+            color: yellow;
+            border: none;
+            cursor: pointer;
+            text-align: left;
+            padding: 0;
+            font-size: 14px;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .forgot:hover {
+            opacity: 0.9;
+        }
+        
+        form button {
+            width: 100%;
+            padding: 20px;
+            margin-top: 80px;
+            border: none;
+            border-radius: 10px;
+            background-color: yellow;
+            color: black;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        form button:hover {
+            opacity: 0.9;
+        }
+
+        .go-back {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding: 10px 20px;
+            background-color: yellow;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .go-back a {
+            text-decoration: none;
+            color: black;
+        }
+
+        .go-back:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <button class="go-back"><a href="./features.html">Go Back</a></button>
+
+    <form>
+        <h1>Sign In</h1>
+        <input type="email" required placeholder="Your email">
+        <input type="password" required placeholder="Your password">
+        <button type="button" class="forgot">Forgot Password?</button>
+        <button type="submit">Sign In</button>
+    </form>
+</body>
+</html>
