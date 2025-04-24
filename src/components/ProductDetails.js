@@ -24,11 +24,11 @@ const ProductDetail = () => {
   return (
     <div className="p-4 flex justify-center items-center min-h-screen bg-black text-white">
       <div className="bg-[#2A2A2A] p-6 rounded-lg shadow-lg flex flex-col items-center gap-6 w-full max-w-xl border border-gray-700">
-        <img
-          src={selectedProduct.selectedVariation.image}
-          alt={selectedProduct.selectedVariation.name}
-          className="w-48 h-48 rounded-md border-4 border-gray-600 object-cover"
-        />
+      <img
+        src={`${process.env.PUBLIC_URL}${selectedProduct.selectedVariation.image}`}
+        alt={selectedProduct.selectedVariation.name}
+        className="w-48 h-48 rounded-md border-4 border-gray-600 object-cover"
+      />
         
         <div className="text-center w-full">
           <h2 className="text-xl font-bold mb-2" style={{ fontFamily: "Montserrat, sans-serif" }}>
@@ -59,7 +59,7 @@ const ProductDetail = () => {
               onClick={() => setSelectedProduct({ ...selectedProduct, selectedVariation: variation })}
             >
               <img
-                src={variation.image}
+                src={`${process.env.PUBLIC_URL}${variation.image}`}
                 alt={variation.name}
                 className="w-full h-full object-cover rounded-md"
               />
