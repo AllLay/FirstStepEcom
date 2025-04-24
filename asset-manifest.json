@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/FirstStepEcom/static/css/main.b7cf0923.css",
-    "main.js": "/FirstStepEcom/static/js/main.a439cf33.js",
+    "main.js": "/FirstStepEcom/static/js/main.6383c426.js",
     "static/js/453.8ab44547.chunk.js": "/FirstStepEcom/static/js/453.8ab44547.chunk.js",
     "index.html": "/FirstStepEcom/index.html",
     "main.b7cf0923.css.map": "/FirstStepEcom/static/css/main.b7cf0923.css.map",
-    "main.a439cf33.js.map": "/FirstStepEcom/static/js/main.a439cf33.js.map",
+    "main.6383c426.js.map": "/FirstStepEcom/static/js/main.6383c426.js.map",
     "453.8ab44547.chunk.js.map": "/FirstStepEcom/static/js/453.8ab44547.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.b7cf0923.css",
-    "static/js/main.a439cf33.js"
+    "static/js/main.6383c426.js"
   ]
 }
