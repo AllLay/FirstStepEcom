@@ -51,7 +51,7 @@ const CheckOut = () => {
         <h2 className="text-xl font-bold mb-4 text-white" style={{ fontFamily: "Montserrat, sans-serif" }}>Checkout</h2>
         <h3 className="text-lg mb-4 text-white" style={{ fontFamily: "Arimo, sans-serif" }}>Product: {product.name}</h3>
         <img
-          src={product.image}
+          src={`${process.env.PUBLIC_URL}${product.image}`}
           alt={product.name}
           className="w-48 h-48 rounded-md mb-4 border-4 border-gray-600 object-cover"
         />
