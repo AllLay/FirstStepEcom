@@ -15,7 +15,7 @@ const ProductList = () => {
             className="bg-[#2A2A2A] p-4 rounded-xl shadow-lg hover:scale-[1.03] transition-transform duration-200 flex flex-col items-center text-center"
           >
             <img
-              src={product.image}
+              src={`${process.env.PUBLIC_URL}${product.image}`}
               alt={product.name}
               className="w-full h-48 object-cover rounded-md mb-4"
             />
