@@ -3,29 +3,26 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 
-const uri = process.env.MONGODB_URI || "mongodb+srv://...";
+const uri = process.env.MONGODB_URI!;
 
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
-
-declare global {
-  var _mongoClientPromise: Promise<MongoClient> | undefined;
+async function getDb() {
+  const client = new MongoClient(uri);
+  await client.connect();
+  return client.db("BigAssData");
 }
 
-if (!global._mongoClientPromise) {
-  client = new MongoClient(uri);
-  global._mongoClientPromise = client.connect();
-}
-clientPromise = global._mongoClientPromise;
-
-export default async function ProductDetailPage({ params }: { params: { id: string } }) {
-  const client = await clientPromise;
-  const db = client.db("BigAssData");
+export default async function ProductDetailPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const db = await getDb();
 
   let product;
   try {
-    product = await db.collection("products").findOne({ _id: new ObjectId(params.id) });
-  } catch {
+    const objectId = new ObjectId(params.id);
+    product = await db.collection("products").findOne({ _id: objectId });
+  } catch (err) {
     return notFound();
   }
 
@@ -44,7 +41,9 @@ export default async function ProductDetailPage({ params }: { params: { id: stri
         <div>
           <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
           <p className="text-gray-700 mb-4">{product.description}</p>
-          <p className="text-xl font-semibold mb-2">Price: {product.price} MMK</p>
+          <p className="text-xl font-semibold mb-2">
+            Price: {product.price} MMK
+          </p>
           <p className="text-sm text-gray-500 mb-6">Type: {product.type}</p>
 
           <Link href={`/checkout/${product._id}`}>

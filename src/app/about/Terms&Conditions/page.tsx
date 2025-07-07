@@ -7,7 +7,7 @@ const OurStory: React.FC = () => {
         <h2 className="mb-5 text-center mt-5 text-2xl">
           1. User Obligations (Dropshippers and Buyers)
         </h2>
-        <p className="text-center border-gray-300  pb-5">
+        <p className="text-center border-gray-300 pb-5">
           All users of the platform, including both dropshippers and buyers,
           are required to comply with applicable laws, platform policies, and
           ethical standards of conduct. Dropshippers must ensure the accuracy
@@ -44,7 +44,7 @@ const OurStory: React.FC = () => {
           or users that violate our policies. However, we are not responsible
           for the conduct of users outside the platform or for any offline
           transactions that may arise. The platform is provided{" "}
-          <b>"as is"</b> and <b>"as available,"</b> and we do not warrant
+          <b>&quot;as is&quot;</b> and <b>&quot;as available&quot;</b>, and we do not warrant
           uninterrupted or error-free service.
         </p>
       </div>
@@ -74,7 +74,7 @@ const OurStory: React.FC = () => {
 
       <div>
         <h2 className="mb-5 text-center text-2xl">
-          4. Intellectual Property & Content Ownership
+          4. Intellectual Property &amp; Content Ownership
         </h2>
         <p className="text-center border-gray-300">
           All content uploaded or posted by users, including product images,
@@ -115,6 +115,10 @@ const OurStory: React.FC = () => {
           may retain anonymized or aggregated data for analytical and operational
           purposes even after account closure.
         </p>
+      </div>
+
+      <div className="mt-10 text-center">
+        <p>John&apos;s product is &quot;amazing&quot;.</p>
       </div>
     </main>
   );

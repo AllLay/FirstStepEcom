@@ -16,10 +16,6 @@ interface Product {
   description: string;
 }
 
-interface MyShopProps {
-  serverHeader: string;
-}
-
 interface ProductCardProps {
   product: Product;
   onDelete: (id: string) => void;
@@ -84,7 +80,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete, onEdit }) 
   );
 };
 
-function MyShop({ serverHeader }: MyShopProps) {
+function MyShop() {
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000';
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -288,7 +284,7 @@ function MyShop({ serverHeader }: MyShopProps) {
                   <option value="T-Shirt">T-Shirt</option>
                   <option value="Shirt">Shirt</option>
                   <option value="Blouse">Blouse</option>
-              </select>
+                </select>
                 <input
                   type="number"
                   min="1"

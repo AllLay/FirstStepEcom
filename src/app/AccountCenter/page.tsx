@@ -49,7 +49,7 @@ export default function AccountCenter() {
       );
       setUser(res.data);
       setMessage("Username updated successfully!");
-    } catch (err: any) {
+    } catch (err: unknown) {
       if (err.response?.status === 409) {
         setError("That username is already taken.");
       } else {
