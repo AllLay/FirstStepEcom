@@ -9,7 +9,7 @@ type Product = {
 };
 
 async function getProduct(id: string): Promise<Product | null> {
-  const res = await fetch(`http://localhost:5000/api/items/${id}`, { next: { revalidate: 0 } });
+  const res = await fetch(`https://firststepecom-b.onrender.com/api/items/${id}`, { next: { revalidate: 0 } });
   if (!res.ok) return null;
   return res.json();
 }
