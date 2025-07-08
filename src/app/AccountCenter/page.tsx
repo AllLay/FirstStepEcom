@@ -43,7 +43,7 @@ export default function AccountCenter() {
 
     try {
       const res = await axios.patch(
-        "http://localhost:5000/api/private/user",
+        "https://firststepecom-b.onrender.com/api/private/user",
         { name: nameInput },
         { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
       );
