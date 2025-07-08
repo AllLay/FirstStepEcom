@@ -81,7 +81,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete, onEdit }) 
 };
 
 function MyShop() {
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000';
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://firststepecom-b.onrender.com';
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [openPopup, setOpenPopup] = useState(false);
