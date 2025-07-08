@@ -120,37 +120,40 @@ function MyShop() {
   }, [API_BASE]);
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        console.warn('No token found for upload');
-        return;
-      }
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('You must be logged in to upload images.');
+    console.warn('No token found for upload');
+    return;
+  }
 
-      const formData = new FormData();
-      formData.append('image', file);
+  const formData = new FormData();
+  formData.append('image', file);
 
-      const res = await axios.post(`${API_BASE}/api/upload`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+  try {
+    const res = await axios.post(`${API_BASE}/api/upload`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
 
-      const imageUrl = res.data.url || res.data.imageUrl || '';
+    console.log('Upload response:', res.data);
 
-      if (!imageUrl || imageUrl.trim() === '') throw new Error('Image URL not found in response.');
+    const imageUrl = res.data.url || res.data.imageUrl;
+    if (!imageUrl) throw new Error('No image URL returned');
 
-      setNewProduct(prev => ({ ...prev, image: imageUrl }));
-    } catch (error) {
-      console.error('Upload failed:', error);
-      setNewProduct(prev => ({ ...prev, image: '' }));
-    }
-  };
-
+    setNewProduct(prev => ({ ...prev, image: imageUrl }));
+  } catch (err) {
+    console.error('Image upload error:', err);
+    alert('Image upload failed.');
+    setNewProduct(prev => ({ ...prev, image: '' }));
+  }
+};
+  
   const handleSubmitProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
