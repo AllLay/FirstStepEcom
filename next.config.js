@@ -1,7 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['localhost', 'firststepecom-b.onrender.com'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'firststepecom-b.onrender.com',
+        pathname: '/uploads/**',
+      },
+    ],
   },
   eslint: {
     ignoreDuringBuilds: true,
