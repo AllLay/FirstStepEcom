@@ -1,6 +1,6 @@
 'use client';
 
-import { UploadButton } from 'uploadthing/react';
+import { UploadButton } from 'uploadthing/components';
 
 interface FileUploadProps {
   onUpload: (url: string) => void;
@@ -13,8 +13,7 @@ export function FileUpload({ onUpload }: FileUploadProps) {
         endpoint="imageUploader"
         onClientUploadComplete={(res) => {
           if (!res || res.length === 0) return;
-          const fileUrl = res[0].url;
-          onUpload(fileUrl);
+          onUpload(res[0].url);
         }}
         onUploadError={(error) => {
           console.error('Upload failed:', error);
