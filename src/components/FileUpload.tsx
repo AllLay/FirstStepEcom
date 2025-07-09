@@ -14,7 +14,6 @@ export function FileUpload({ onUpload }: FileUploadProps) {
         endpoint="imageUploader"
         onClientUploadComplete={(res) => {
           if (!res || res.length === 0) return;
-          // in v7 the URL field is `url`
           onUpload(res[0].url);
         }}
         onUploadError={(error) => {
