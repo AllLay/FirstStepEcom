@@ -13,7 +13,7 @@ import {
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { uploadFiles } from '@uploadthing/react';
+import { uploadFiles } from '@/utils/uploadthing';
 
 interface Product {
   _id: string;
