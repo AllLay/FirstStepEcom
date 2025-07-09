@@ -239,6 +239,7 @@ function MyShop() {
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md"
                 />
 
+                {/* UploadThing file upload */}
                 <div className="w-full max-w-md p-6 border-2 border-dashed mt-2 border-gray-300 hover:border-black/80 rounded-lg bg-white text-center shadow-md">
                   <i className="flex justify-center items-center text-6xl text-gray-400 mb-5">
                     <Upload />
