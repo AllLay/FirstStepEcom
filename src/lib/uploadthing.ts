@@ -1,6 +1,29 @@
-import { createUploadthing, type FileRouter } from 'uploadthing/react';
+import { generateUploadThingURL, UTApi } from "uploadthing/server";
+import { UploadThingError } from "uploadthing/server";
 
-const f = createUploadthing();
-export const ourFileRouter = {
-  imageUploader: f({ image: { maxFileSize: '4MB' } }),
-} satisfies FileRouter;
+import { createUploadthing, type FileRouter } from "uploadthing/server";
+
+export const uploadFiles = async (
+  endpoint: string,
+  opts: { files: File[] }
+): Promise<
+  {
+    url: string;
+    key: string;
+    name: string;
+    size: number;
+    type: string;
+  }[]
+> => {
+  const res = await fetch(`/api/uploadthing?slug=${endpoint}`, {
+    method: "POST",
+    body: opts.files[0],
+  });
+
+  if (!res.ok) {
+    throw new UploadThingError("Upload failed");
+  }
+
+  const data = await res.json();
+  return [data];
+};
