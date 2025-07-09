@@ -1,9 +1,9 @@
-import { createUploadthing, type FileRouter } from 'uploadthing/next';
+import { createUploadthing, type FileRouter } from "uploadthing/next";
 
 const f = createUploadthing();
 
-export const uploadRouter: FileRouter = {
-  productImage: f({ maxFileCount: 1 }).image(),
-};
+export const uploadRouter = {
+  productImage: f({ image: { maxFileSize: "4MB", maxFileCount: 1 } }),
+} satisfies FileRouter;
 
 export type OurFileRouter = typeof uploadRouter;
