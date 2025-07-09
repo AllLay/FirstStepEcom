@@ -12,6 +12,6 @@ export const uploadRouter: FileRouter = {
 export const { GET, POST } = createRouteHandler({
   router: uploadRouter,
   config: {
-    uploadthingSecret: process.env.UPLOADTHING_SECRET!,
+    uploadthingSecret: "sk_live_7e276cea24bb8f26d4803e9e0f738bee5efaff401d83e3079c2c6a4d36f7600f",
   },
 });
