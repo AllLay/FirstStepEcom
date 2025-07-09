@@ -1,29 +1,21 @@
-import { generateUploadThingURL, UTApi } from "uploadthing/server";
-import { UploadThingError } from "uploadthing/server";
-
-import { createUploadthing, type FileRouter } from "uploadthing/server";
+import { generateUploadThingURL } from 'uploadthing/client';
+import { FileRouter } from '@/app/api/uploadthing/core';
 
 export const uploadFiles = async (
-  endpoint: string,
-  opts: { files: File[] }
-): Promise<
-  {
-    url: string;
-    key: string;
-    name: string;
-    size: number;
-    type: string;
-  }[]
-> => {
-  const res = await fetch(`/api/uploadthing?slug=${endpoint}`, {
-    method: "POST",
-    body: opts.files[0],
+  endpoint: keyof FileRouter,
+  { files }: { files: File[] }
+) => {
+  const url = generateUploadThingURL(`/api/uploadthing`, endpoint);
+  const formData = new FormData();
+
+  files.forEach((file) => formData.append('files', file));
+
+  const res = await fetch(url, {
+    method: 'POST',
+    body: formData,
   });
 
-  if (!res.ok) {
-    throw new UploadThingError("Upload failed");
-  }
+  if (!res.ok) throw new Error('Upload failed');
 
-  const data = await res.json();
-  return [data];
+  return res.json();
 };
