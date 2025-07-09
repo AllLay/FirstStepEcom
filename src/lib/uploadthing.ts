@@ -1,4 +1,4 @@
-import { createUploadthing, type FileRouter } from 'uploadthing/next';
+import { createUploadthing, type FileRouter } from 'uploadthing/react';
 
 const f = createUploadthing();
 export const ourFileRouter = {
