@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useUploadThing, type UploadFile } from 'uploadthing/react';
+import { useUploadThing, type UploadFile } from 'uploadthing/next';
 import { Button } from 'your-ui-library-or-html';
 
 interface FileUploadProps {
