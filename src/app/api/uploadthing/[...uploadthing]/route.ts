@@ -4,6 +4,6 @@ import { uploadRouter } from "@/lib/uploadthing";
 export const { GET, POST } = createRouteHandler({
   router: uploadRouter,
   config: {
-    uploadthingSecret: process.env.UPLOADTHING_SECRET || "",
+    uploadthingSecret: process.env.UPLOADTHING_SECRET!,
   },
 });
