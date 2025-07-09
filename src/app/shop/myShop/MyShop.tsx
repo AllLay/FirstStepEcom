@@ -12,7 +12,7 @@ import {
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { UploadButton } from '@/utils/uploadthing';
+import { UploadButton } from '@/lib/uploadthing';
 
 interface Product {
   _id: string;
