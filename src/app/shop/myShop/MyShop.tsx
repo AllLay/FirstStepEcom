@@ -1,10 +1,19 @@
 'use client';
 
-import { Plus, Package, DollarSign, TrendingUp, SquarePen, Trash2, X, Upload } from 'lucide-react';
+import {
+  Plus,
+  Package,
+  DollarSign,
+  TrendingUp,
+  SquarePen,
+  Trash2,
+  X,
+  Upload,
+} from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useUploadThing as useUpload } from '@uploadthing/react';
+import { uploadFiles } from '@uploadthing/react';
 
 interface Product {
   _id: string;
@@ -43,7 +52,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete, onEdit }) 
           className="object-contain"
         />
       </div>
-
       <div className="flex justify-between items-center mt-2">
         <h2 className="text-lg font-semibold">{product.name}</h2>
         <p
@@ -55,14 +63,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete, onEdit }) 
           {productActivity}
         </p>
       </div>
-
       <p className="text-gray-500">{product.type}</p>
-
       <div className="flex justify-between mt-1">
         <p className="font-medium">{product.price} MMK</p>
         <p className="font-medium">{product.stock}</p>
       </div>
-
       <div className="flex justify-between mt-4">
         <button
           onClick={() => onEdit(product)}
@@ -96,17 +101,11 @@ function MyShop() {
     description: '',
   });
 
-  // Setup UploadThing hook with your server-defined uploader key "imageUploader"
-  const { startUpload } = useUploadThing<'imageUploader'>();
-
   useEffect(() => {
     async function fetchProducts() {
       try {
         const token = localStorage.getItem('token');
-        if (!token) {
-          console.warn('No token found in localStorage');
-          return;
-        }
+        if (!token) return;
 
         const res = await axios.get(`${API_BASE}/api/items`, {
           headers: {
@@ -123,17 +122,16 @@ function MyShop() {
     fetchProducts();
   }, [API_BASE]);
 
-  // Updated to use UploadThing instead of Axios upload
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files?.length) return;
 
     try {
-      const res = await startUpload(files);
+      const res = await uploadFiles('imageUploader', { files });
       if (res.length > 0) {
         setNewProduct((prev) => ({
           ...prev,
-          image: res[0].file.url,
+          image: res[0].url,
         }));
       }
     } catch (error) {
@@ -146,10 +144,7 @@ function MyShop() {
     e.preventDefault();
 
     const token = localStorage.getItem('token');
-    if (!token) {
-      console.warn('No token found in localStorage');
-      return;
-    }
+    if (!token) return;
 
     const payload = {
       name: newProduct.name,
@@ -198,10 +193,7 @@ function MyShop() {
   const deleteProduct = async (id: string) => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
-        console.warn('No token found in localStorage');
-        return;
-      }
+      if (!token) return;
 
       await axios.delete(`${API_BASE}/api/items/${id}`, {
         headers: {
@@ -231,7 +223,14 @@ function MyShop() {
           <button
             onClick={() => {
               setSelectedProduct(null);
-              setNewProduct({ name: '', type: '', price: '', stock: '', image: '', description: '' });
+              setNewProduct({
+                name: '',
+                type: '',
+                price: '',
+                stock: '',
+                image: '',
+                description: '',
+              });
               setOpenPopup(true);
             }}
             className="flex bg-black cursor-pointer hover:bg-black/80 transition py-4 px-5 rounded-4xl text-white"
