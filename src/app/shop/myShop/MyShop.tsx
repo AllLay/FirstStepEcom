@@ -1,18 +1,12 @@
 'use client';
 
-import {
-  Plus,
-  Package,
-  DollarSign,
-  TrendingUp,
-  SquarePen,
-  Trash2,
-  X,
-} from 'lucide-react';
+import { Plus, Package, DollarSign, TrendingUp, SquarePen, Trash2, X, Upload } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { UploadButton } from '@/lib/uploadthing';
+
+import { UploadButton } from '@uploadthing/react';
+import type { OurFileRouter } from '@/lib/uploadthing';
 
 interface Product {
   _id: string;
@@ -25,11 +19,13 @@ interface Product {
   description: string;
 }
 
-const ProductCard: React.FC<{
+interface ProductCardProps {
   product: Product;
   onDelete: (id: string) => void;
   onEdit: (product: Product) => void;
-}> = ({ product, onDelete, onEdit }) => {
+}
+
+const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete, onEdit }) => {
   const [imgError, setImgError] = useState(false);
   const productActivity = product.stock === 0 ? 'gone' : 'active';
 
@@ -38,7 +34,7 @@ const ProductCard: React.FC<{
       <div className="w-full h-[250px] flex justify-center items-center overflow-hidden rounded-xl mx-auto">
         <Image
           src={
-            !imgError && product.image?.trim()
+            !imgError && product.image && product.image.trim() !== ''
               ? product.image
               : '/img/placeholder.png'
           }
@@ -52,7 +48,12 @@ const ProductCard: React.FC<{
 
       <div className="flex justify-between items-center mt-2">
         <h2 className="text-lg font-semibold">{product.name}</h2>
-        <p className={`text-sm ${productActivity === 'gone' ? 'text-red-600' : 'text-green-600'}`}>
+        <p
+          className="text-sm"
+          style={{
+            color: productActivity === 'gone' ? 'red' : 'green',
+          }}
+        >
           {productActivity}
         </p>
       </div>
@@ -67,13 +68,13 @@ const ProductCard: React.FC<{
       <div className="flex justify-between mt-4">
         <button
           onClick={() => onEdit(product)}
-          className="flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-400 px-5 py-2 rounded-4xl"
+          className="flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-400 px-5 py-2 rounded-4xl cursor-pointer"
         >
           <SquarePen size={16} /> Edit
         </button>
         <button
           onClick={() => onDelete(product._id)}
-          className="flex items-center gap-2 text-white bg-red-600 hover:bg-red-400 px-5 py-2 rounded-4xl"
+          className="flex items-center gap-2 text-white bg-red-600 hover:bg-red-400 px-5 py-2 rounded-4xl cursor-pointer"
         >
           <Trash2 size={16} /> Delete
         </button>
@@ -82,7 +83,7 @@ const ProductCard: React.FC<{
   );
 };
 
-export default function MyShop() {
+function MyShop() {
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000';
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -101,11 +102,17 @@ export default function MyShop() {
     async function fetchProducts() {
       try {
         const token = localStorage.getItem('token');
-        if (!token) return;
+        if (!token) {
+          console.warn('No token found in localStorage');
+          return;
+        }
 
         const res = await axios.get(`${API_BASE}/api/items`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
+
         setProducts(res.data);
       } catch (error) {
         console.error('Fetch error:', error);
@@ -115,10 +122,23 @@ export default function MyShop() {
     fetchProducts();
   }, [API_BASE]);
 
+  const handleUploadComplete = (res: { url: string }[]) => {
+    if (!res || !res[0]?.url) return;
+    setNewProduct(prev => ({ ...prev, image: res[0].url }));
+  };
+
+  const handleUploadError = (error: Error) => {
+    console.error('Upload failed:', error);
+  };
+
   const handleSubmitProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!token) {
+      console.warn('No token found in localStorage');
+      return;
+    }
 
     const payload = {
       name: newProduct.name,
@@ -135,15 +155,21 @@ export default function MyShop() {
         const res = await axios.put(
           `${API_BASE}/api/items/${selectedProduct._id}`,
           payload,
-          { headers: { Authorization: `Bearer ${token}` } }
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
-        const updated = res.data;
+        const updatedProduct = res.data;
         setProducts(prev =>
-          prev.map(p => (p._id === updated._id ? updated : p))
+          prev.map(p => (p._id === updatedProduct._id ? updatedProduct : p))
         );
       } else {
         const res = await axios.post(`${API_BASE}/api/items`, payload, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
         setProducts(prev => [...prev, res.data]);
       }
@@ -151,23 +177,30 @@ export default function MyShop() {
       setNewProduct({ name: '', type: '', price: '', stock: '', image: '', description: '' });
       setOpenPopup(false);
       setSelectedProduct(null);
-    } catch (err) {
-      console.error(err);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error(error);
+      }
     }
   };
 
   const deleteProduct = async (id: string) => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) return;
+      if (!token) {
+        console.warn('No token found in localStorage');
+        return;
+      }
 
       await axios.delete(`${API_BASE}/api/items/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
-      setProducts(prev => prev.filter(p => p._id !== id));
-    } catch (err) {
-      console.error(err);
+      setProducts(prevProducts => prevProducts.filter(p => p._id !== id));
+    } catch (error) {
+      console.error(error);
     }
   };
 
@@ -182,120 +215,148 @@ export default function MyShop() {
           <h2 className="text-3xl">My Shop</h2>
           <p className="my-2.5">Manage your products and inventory</p>
         </div>
-        <button
-          onClick={() => {
-            setSelectedProduct(null);
-            setNewProduct({ name: '', type: '', price: '', stock: '', image: '', description: '' });
-            setOpenPopup(true);
-          }}
-          className="flex bg-black cursor-pointer hover:bg-black/80 transition py-4 px-5 rounded-4xl text-white"
-        >
-          <Plus /> Add Product
-        </button>
-      </div>
 
-      {openPopup && (
-        <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold">
-                {selectedProduct ? 'Edit Product' : 'Add Product'}
-              </h2>
-              <button onClick={() => setOpenPopup(false)}>
-                <X className="text-gray-600 hover:text-black" />
-              </button>
-            </div>
+        <div>
+          <button
+            onClick={() => {
+              setSelectedProduct(null);
+              setNewProduct({ name: '', type: '', price: '', stock: '', image: '', description: '' });
+              setOpenPopup(true);
+            }}
+            className="flex bg-black cursor-pointer hover:bg-black/80 transition py-4 px-5 rounded-4xl text-white"
+          >
+            <Plus /> Add Product
+          </button>
+        </div>
 
-            <form className="p-5" onSubmit={handleSubmitProduct}>
-              <input
-                type="text"
-                placeholder="Name"
-                value={newProduct.name}
-                onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
-                required
-                className="w-full px-4 py-2 border rounded-md mb-2"
-              />
-              <select
-                value={newProduct.type}
-                onChange={e => setNewProduct({ ...newProduct, type: e.target.value })}
-                required
-                className="w-full px-4 py-2 border rounded-md mb-2"
-              >
-                <option value="">Select type</option>
-                <option value="T-Shirt">T-Shirt</option>
-                <option value="Shirt">Shirt</option>
-                <option value="Blouse">Blouse</option>
-              </select>
-              <input
-                type="number"
-                min="1"
-                placeholder="Price"
-                value={newProduct.price}
-                onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
-                required
-                className="w-full px-4 py-2 border rounded-md mb-2"
-              />
-              <input
-                type="number"
-                min="1"
-                placeholder="Stock"
-                value={newProduct.stock}
-                onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })}
-                required
-                className="w-full px-4 py-2 border rounded-md mb-2"
-              />
-
-              <UploadButton
-                endpoint="imageUploader"
-                onClientUploadComplete={res => {
-                  if (res && res[0]?.url) {
-                    setNewProduct(prev => ({ ...prev, image: res[0].url }));
-                  }
-                }}
-                onUploadError={err => {
-                  console.error('UploadThing Error:', err.message);
-                }}
-              />
-
-              {newProduct.image && (
-                <div className="mt-4 flex justify-center">
-                  <Image
-                    src={newProduct.image}
-                    alt="Preview"
-                    width={200}
-                    height={200}
-                    className="object-contain rounded-md border"
-                    onError={e => {
-                      (e.currentTarget as HTMLImageElement).src = '/img/placeholder.png';
-                    }}
-                  />
-                </div>
-              )}
-
-              <textarea
-                placeholder="Product description..."
-                value={newProduct.description}
-                onChange={e => setNewProduct({ ...newProduct, description: e.target.value })}
-                className="w-full h-24 px-4 py-2 border rounded-md mt-2"
-              />
-
-              <div className="flex justify-center mt-4">
+        {openPopup && (
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
+              <div className="flex flex-row justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold">
+                  {selectedProduct ? 'Edit Product' : 'Add Product'}
+                </h2>
                 <button
-                  type="submit"
-                  className="bg-black hover:bg-black/80 text-white px-4 py-2 rounded-4xl"
+                  onClick={() => setOpenPopup(false)}
+                  className="text-gray-600 cursor-pointer hover:text-black text-xl"
+                  aria-label="Close popup"
                 >
-                  {selectedProduct ? 'Update Product' : 'Add Product'}
+                  <X />
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
 
-      <div className="my-10 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatCard icon={<Package className="h-8 w-8 text-blue-600" />} title="Total Products" value={totalProducts} bg="bg-blue-100" />
-        <StatCard icon={<DollarSign className="h-8 w-8 text-green-600" />} title="Total Value" value={`${Intl.NumberFormat('en-US').format(totalValue)} MMK`} bg="bg-green-100" />
-        <StatCard icon={<TrendingUp className="h-8 w-8 text-purple-600" />} title="Active Products" value={activeProducts} bg="bg-purple-100" />
+              <form className="p-5" onSubmit={handleSubmitProduct}>
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={newProduct.name}
+                  onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
+                  required
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
+                />
+                <select
+                  value={newProduct.type}
+                  onChange={e => setNewProduct({ ...newProduct, type: e.target.value })}
+                  required
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black text-center"
+                >
+                  <option value="">Select a type</option>
+                  <option value="T-Shirt">T-Shirt</option>
+                  <option value="Shirt">Shirt</option>
+                  <option value="Blouse">Blouse</option>
+                </select>
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="Price"
+                  value={newProduct.price}
+                  onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
+                  required
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
+                />
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="Amount"
+                  value={newProduct.stock}
+                  onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })}
+                  required
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
+                />
+
+                {/* UploadThing upload button */}
+                <div className="w-full max-w-md p-6 border-2 border-dashed mt-2 border-gray-300 hover:border-black/80 rounded-lg bg-white text-center shadow-md">
+                  <UploadButton<OurFileRouter>
+                    endpoint="productImage"
+                    onClientUploadComplete={handleUploadComplete}
+                    onUploadError={handleUploadError}
+                    appearance={{
+                      button: 'bg-black text-white py-3 px-6 rounded-4xl text-base hover:bg-black/80',
+                      container: '',
+                      allowedContent: 'text-sm text-gray-400 mt-1',
+                    }}
+                  />
+                  <p className="text-xl font-bold text-gray-800 mt-4 mb-2">Drop your product images here</p>
+                  <p className="text-sm text-gray-400 mb-4">or click to browse from your computer</p>
+                </div>
+
+                <textarea
+                  placeholder="Write something about your product..."
+                  value={newProduct.description}
+                  onChange={e => setNewProduct({ ...newProduct, description: e.target.value })}
+                  className="mt-1 block w-full p-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
+                />
+
+                {newProduct.image && newProduct.image.trim() !== '' && (
+                  <div className="mt-4 flex justify-center">
+                    <Image
+                      src={newProduct.image}
+                      alt="Preview"
+                      width={200}
+                      height={200}
+                      className="object-contain rounded-md border"
+                      onError={e => {
+                        (e.currentTarget as HTMLImageElement).src = '/img/placeholder.png';
+                      }}
+                    />
+                  </div>
+                )}
+
+                <div className="flex justify-center mt-4">
+                  <button
+                    type="submit"
+                    className="bg-black hover:bg-black/80 text-white px-4 py-2 rounded-4xl cursor-pointer transition"
+                  >
+                    {selectedProduct ? 'Update Product' : 'Add Product'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="my-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <StatCard
+            icon={<Package className="h-8 w-8 text-blue-600" />}
+            title="Total Products"
+            value={totalProducts}
+            bg="bg-blue-100"
+          />
+          <StatCard
+            icon={<DollarSign className="h-8 w-8 text-green-600" />}
+            title="Total Value"
+            value={`${Intl.NumberFormat('en-US').format(totalValue)} MMK`}
+            bg="bg-green-100"
+          />
+          <StatCard
+            icon={<TrendingUp className="h-8 w-8 text-purple-600" />}
+            title="Active Products"
+            value={activeProducts}
+            bg="bg-purple-100"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -334,7 +395,7 @@ const StatCard = ({
   value: string | number;
   bg: string;
 }) => (
-  <div className="bg-white p-6 rounded-xl shadow-md border hover:scale-105 transition-all duration-300">
+  <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:scale-105 transition-all duration-300">
     <div className="flex items-center">
       <div className={`p-3 ${bg} rounded-lg`}>{icon}</div>
       <div className="ml-4">
@@ -344,3 +405,5 @@ const StatCard = ({
     </div>
   </div>
 );
+
+export default MyShop;
