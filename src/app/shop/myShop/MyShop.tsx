@@ -4,7 +4,7 @@ import { Plus, Package, DollarSign, TrendingUp, SquarePen, Trash2, X, Upload } f
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useUploadThing } from '@uploadthing/react';
+import { useUploadThing } from '@uploadthing';
 import type { UploadFile } from '@uploadthing/react';
 
 interface Product {
