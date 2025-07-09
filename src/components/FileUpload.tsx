@@ -1,6 +1,6 @@
 'use client';
 
-import { UploadButton } from '@uploadthing/next';
+import { UploadButton } from 'uploadthing';
 import type { OurFileRouter } from '@/lib/uploadthing';
 
 interface FileUploadProps {
