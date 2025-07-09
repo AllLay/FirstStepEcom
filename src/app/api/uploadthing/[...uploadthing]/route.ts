@@ -1,6 +1,11 @@
-import { createRouteHandler } from "uploadthing/server";
-import { ourFileRouter } from "../core";
+import { createUploadthing, type FileRouter } from 'uploadthing/next';
 
-export const { GET, POST } = createRouteHandler({
-  router: ourFileRouter,
-});
+const f = createUploadthing();
+
+export const uploadRouter: FileRouter = {
+  productImage: f({ maxFileCount: 1 }).image(),
+};
+
+const handler = f.handleUpload(uploadRouter);
+
+export { handler as GET, handler as POST };
