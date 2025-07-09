@@ -1,19 +1,12 @@
-import { createUploadthing, type FileRouter } from "@uploadthing/next";
+import { createUploadthing, type FileRouter } from "uploadthing/server";
 
-const ut = createUploadthing();
+const f = createUploadthing();
 
-export const uploadRouter = {
-  imageUploader: ut
-    .fileType("image")
-    .maxSize("4MB")
-    .middleware(async (_req, _res) => {
-      return { userId: "logged‑in user id" };
-    })
+export const ourFileRouter = {
+  imageUploader: f({ image: { maxFileSize: "4MB" } })
     .onUploadComplete(async ({ file }) => {
-      console.log("Upload complete!", file);
+      console.log("Upload complete:", file.url);
     }),
 } satisfies FileRouter;
 
-export type UploadRouter = typeof uploadRouter;
-
-export const { handler: uploadthingHandler } = ut;
+export type OurFileRouter = typeof ourFileRouter;
