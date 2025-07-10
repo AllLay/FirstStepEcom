@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import api from "@/lib/api";
 
 export default function AccountCenter() {
   const { user, token, logout, setUser } = useAuth();
@@ -42,10 +42,10 @@ export default function AccountCenter() {
     }
 
     try {
-      const res = await axios.patch(
-        "https://firststepecom-b.onrender.com/api/private/user",
+      const res = await api.patch(
+        '/api/private/user',
         { name: nameInput },
-        { headers: { Authorization: `Bearer ${token}` }, withCredentials: true }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       setUser(res.data);
       setMessage("Username updated successfully!");
