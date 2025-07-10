@@ -155,7 +155,7 @@ function MyShop() {
     try {
       if (selectedProduct) {
         const res = await axios.put(
-          `${API_BASE}/api/items/${selectedProduct._id}`,
+          `${API_BASE}/items/${selectedProduct._id}`,
           payload,
           {
             headers: {
@@ -168,7 +168,7 @@ function MyShop() {
           prev.map(p => (p._id === updatedProduct._id ? updatedProduct : p))
         );
       } else {
-        const res = await axios.post(`${API_BASE}/api/items`, payload, {
+        const res = await axios.post(`${API_BASE}/items`, payload, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -201,7 +201,7 @@ function MyShop() {
         return;
       }
 
-      await axios.delete(`${API_BASE}/api/items/${id}`, {
+      await axios.delete(`${API_BASE}/items/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
