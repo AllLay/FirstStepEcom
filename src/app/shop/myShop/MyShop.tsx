@@ -435,12 +435,18 @@ const StatCard = ({
   value: string | number;
   bg: string;
 }) => (
-  <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:scale-105 transition-all duration-300">
-    <div className="flex items-center">
-      <div className={`p-3 ${bg} rounded-lg`}>{icon}</div>
-      <div className="ml-4">
-        <p className="text-sm font-medium text-gray-600">{title}</p>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
+  <div
+    className={`relative p-6 rounded-2xl shadow-md border border-gray-200 hover:shadow-xl hover:scale-[1.03] transition-transform duration-300 ${bg}`}
+  >
+    <div className="flex items-center space-x-4">
+      <div className="p-3 rounded-full bg-white text-black shadow-inner shadow-black/10">
+        {icon}
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-gray-600 tracking-wide uppercase">
+          {title}
+        </p>
+        <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
       </div>
     </div>
   </div>
