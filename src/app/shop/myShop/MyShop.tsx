@@ -140,7 +140,7 @@ function MyShop() {
         console.error('Upload failed:', error);
         setNewProduct(prev => ({ ...prev, image: '' }));
       }
-    };
+    }
  catch (error) {
       console.error('Upload failed:', error);
       setNewProduct(prev => ({ ...prev, image: '' }));
