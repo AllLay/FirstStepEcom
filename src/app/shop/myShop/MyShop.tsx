@@ -95,7 +95,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 };
 
 function MyShop() {
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [openPopup, setOpenPopup] = useState(false);
