@@ -120,26 +120,25 @@ function MyShop() {
     fetchProducts();
   }, [API_BASE]);
     
-    const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
   
-      try {
-        const uploaded = await uploadFiles("imageUploader", {
-          files: [file],
-        });
+    try {
+      const uploaded = await uploadFiles("imageUploader", {
+        files: [file],
+      });
   
-        const imageUrl = uploaded?.[0]?.url || uploaded?.[0]?.imageUrl || '';
+      const imageUrl = uploaded?.[0]?.url || uploaded?.[0]?.imageUrl || '';
   
-        if (!imageUrl || imageUrl.trim() === '') {
-          throw new Error('Image URL not found in UploadThing response.');
-        }
+      if (!imageUrl || imageUrl.trim() === '') {
+        throw new Error('Image URL not found in UploadThing response.');
+      }
   
-        setNewProduct(prev => ({ ...prev, image: imageUrl }));
-      } catch (error) {
-        console.error('Upload failed:', error);
-        setNewProduct(prev => ({ ...prev, image: '' }));
-      }
+      setNewProduct(prev => ({ ...prev, image: imageUrl }));
+    } catch (error) {
+      console.error('Upload failed:', error);
+      setNewProduct(prev => ({ ...prev, image: '' }));
     }
   };
 
@@ -401,26 +400,23 @@ function MyShop() {
   );
 }
 
-const StatCard = ({
-  icon,
-  title,
-  value,
-  bg,
-}: {
+interface StatCardProps {
   icon: React.ReactNode;
   title: string;
   value: string | number;
   bg: string;
-}) => (
-  <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:scale-105 transition-all duration-300">
-    <div className="flex items-center">
-      <div className={`p-3 ${bg} rounded-lg`}>{icon}</div>
-      <div className="ml-4">
-        <p className="text-sm font-medium text-gray-600">{title}</p>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
+}
+
+const StatCard: React.FC<StatCardProps> = ({ icon, title, value, bg }) => {
+  return (
+    <div className={`p-6 rounded-2xl shadow-md flex items-center space-x-4 ${bg}`}>
+      <div className="p-3 rounded-full bg-white bg-opacity-75">{icon}</div>
+      <div>
+        <p className="text-gray-600 text-sm">{title}</p>
+        <p className="text-xl font-bold">{value}</p>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default MyShop;
