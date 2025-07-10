@@ -229,7 +229,7 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
                 setError("");
                 setMessage("");
                 try {
-                  await api.post("/auth/send-code", { email });
+                  await api.post("/api/auth/send-code", { email });
                   setMessage("Verification code resent. Please check your email.");
                 } catch (e) {
                   setError("Failed to resend code. Please try again later.");
