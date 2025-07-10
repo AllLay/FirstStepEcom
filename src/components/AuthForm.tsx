@@ -52,19 +52,19 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
           return;
         }
 
-        await api.post("/api/auth/send-code", { email });
+        await api.post("/auth/send-code", { email });
         setMessage("Verification code sent to your email.");
         setAuthMode("verifyEmail");
 
       }
 
       else if (authMode === "verifyEmail") {
-        await api.post("/api/auth/verify-code", {
+        await api.post("/auth/verify-code", {
           email,
           code: verificationCode,
         });
 
-        await api.post("/api/auth/register", {
+        await api.post("/auth/register", {
           name,
           email,
           password,
@@ -229,7 +229,7 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
                 setError("");
                 setMessage("");
                 try {
-                  await api.post("/api/auth/send-code", { email });
+                  await api.post("/auth/send-code", { email });
                   setMessage("Verification code resent. Please check your email.");
                 } catch (e) {
                   setError("Failed to resend code. Please try again later.");
