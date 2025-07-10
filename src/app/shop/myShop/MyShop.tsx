@@ -131,7 +131,9 @@ function MyShop() {
     
         const imageUrl = uploaded?.[0]?.url || uploaded?.[0]?.imageUrl || '';
     
-        if (!imageUrl || imageUrl.trim() === '') throw new Error('Image URL not found in response.');
+        if (!imageUrl || imageUrl.trim() === '') {
+          throw new Error('Image URL not found in UploadThing response.');
+        }
     
         setNewProduct(prev => ({ ...prev, image: imageUrl }));
       } catch (error) {
