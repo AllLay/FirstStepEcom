@@ -118,7 +118,7 @@ function MyShop() {
           return;
         }
 
-        const res = await axios.get(`${API_BASE}/api/items`, {
+        const res = await axios.get(`${API_BASE}/items`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
