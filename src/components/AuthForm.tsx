@@ -52,19 +52,19 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
           return;
         }
 
-        await api.post("/auth/send-code", { email });
+        await api.post("/api/auth/send-code", { email });
         setMessage("Verification code sent to your email.");
         setAuthMode("verifyEmail");
 
       }
 
       else if (authMode === "verifyEmail") {
-        await api.post("/auth/verify-code", {
+        await api.post("/api/auth/verify-code", {
           email,
           code: verificationCode,
         });
 
-        await api.post("/auth/register", {
+        await api.post("/api/auth/register", {
           name,
           email,
           password,
