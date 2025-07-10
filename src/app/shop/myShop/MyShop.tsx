@@ -128,15 +128,6 @@ function MyShop() {
           const uploaded = await uploadFiles("imageUploader", {
             files: [file],
           });
-      
-          const imageUrl = uploaded?.[0]?.url;
-          if (!imageUrl) throw new Error("UploadThing did not return a URL.");
-      
-          setNewProduct((prev) => ({ ...prev, image: imageUrl }));
-        } catch (error) {
-          console.error("UploadThing failed:", error);
-          setNewProduct((prev) => ({ ...prev, image: "" }));
-        }
       };
 
       const imageUrl = res.data.url || res.data.imageUrl || '';
