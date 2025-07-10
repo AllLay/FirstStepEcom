@@ -121,26 +121,26 @@ function MyShop() {
   }, [API_BASE]);
     
     const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-    
-      try {
-        const uploaded = await uploadFiles("imageUploader", {
-          files: [file],
-        });
-    
-        const imageUrl = uploaded?.[0]?.url || uploaded?.[0]?.imageUrl || '';
-    
-        if (!imageUrl || imageUrl.trim() === '') {
-          throw new Error('Image URL not found in UploadThing response.');
-        }
-    
-        setNewProduct(prev => ({ ...prev, image: imageUrl }));
-      } catch (error) {
-        console.error('Upload failed:', error);
-        setNewProduct(prev => ({ ...prev, image: '' }));
-      }
-    };
+      const file = e.target.files?.[0];
+      if (!file) return;
+  
+      try {
+        const uploaded = await uploadFiles("imageUploader", {
+          files: [file],
+        });
+  
+        const imageUrl = uploaded?.[0]?.url || uploaded?.[0]?.imageUrl || '';
+  
+        if (!imageUrl || imageUrl.trim() === '') {
+          throw new Error('Image URL not found in UploadThing response.');
+        }
+  
+        setNewProduct(prev => ({ ...prev, image: imageUrl }));
+      } catch (error) {
+        console.error('Upload failed:', error);
+        setNewProduct(prev => ({ ...prev, image: '' }));
+      }
+    };
  catch (error) {
       console.error('Upload failed:', error);
       setNewProduct(prev => ({ ...prev, image: '' }));
