@@ -4,8 +4,8 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'firststepecom-b.onrender.com',
-        pathname: '/uploads/**',
+        hostname: 'cdn.uploadthing.com',
+        pathname: '/**',
       },
     ],
   },
