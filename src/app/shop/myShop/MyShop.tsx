@@ -4,6 +4,7 @@ import { Plus, Package, DollarSign, TrendingUp, SquarePen, Trash2, X, Upload } f
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { uploadFiles } from "@/utils/uploadthing";
 
 interface Product {
   _id: string;
@@ -119,26 +120,24 @@ function MyShop() {
     fetchProducts();
   }, [API_BASE]);
 
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        console.warn('No token found for upload');
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('image', file);
-
-      const res = await axios.post(`${API_BASE}/api/upload`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+      
+        try {
+          const uploaded = await uploadFiles("imageUploader", {
+            files: [file],
+          });
+      
+          const imageUrl = uploaded?.[0]?.url;
+          if (!imageUrl) throw new Error("UploadThing did not return a URL.");
+      
+          setNewProduct((prev) => ({ ...prev, image: imageUrl }));
+        } catch (error) {
+          console.error("UploadThing failed:", error);
+          setNewProduct((prev) => ({ ...prev, image: "" }));
+        }
+      };
 
       const imageUrl = res.data.url || res.data.imageUrl || '';
 
