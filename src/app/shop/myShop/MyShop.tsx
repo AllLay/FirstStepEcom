@@ -1,10 +1,19 @@
 'use client';
 
-import { Plus, Package, DollarSign, TrendingUp, SquarePen, Trash2, X, Upload } from 'lucide-react';
+import {
+  Plus,
+  Package,
+  DollarSign,
+  TrendingUp,
+  SquarePen,
+  Trash2,
+  X,
+  Upload,
+} from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { uploadFiles } from "@/utils/uploadthing";
+import { UploadButton } from '@/utils/uploadthing';
 
 interface Product {
   _id: string;
@@ -23,7 +32,11 @@ interface ProductCardProps {
   onEdit: (product: Product) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete, onEdit }) => {
+const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  onDelete,
+  onEdit,
+}) => {
   const [imgError, setImgError] = useState(false);
   const productActivity = product.stock === 0 ? 'gone' : 'active';
 
@@ -82,7 +95,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete, onEdit }) 
 };
 
 function MyShop() {
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'https://firststepecom-b.onrender.com';
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000';
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [openPopup, setOpenPopup] = useState(false);
@@ -119,34 +132,6 @@ function MyShop() {
 
     fetchProducts();
   }, [API_BASE]);
-    
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
-
-  console.log('🧪 Selected file:', file);
-
-  try {
-    console.log('🧪 uploadFiles:', uploadFiles);
-    const uploaded = await uploadFiles("imageUploader", {
-      files: [file],
-    });
-
-    console.log('✅ UploadThing response:', uploaded);
-
-    const imageUrl = uploaded?.[0]?.url || uploaded?.[0]?.imageUrl || '';
-    console.log('🧪 Extracted imageUrl:', imageUrl);
-
-    if (!imageUrl || imageUrl.trim() === '') {
-      throw new Error('Image URL not found in UploadThing response.');
-    }
-
-    setNewProduct(prev => ({ ...prev, image: imageUrl }));
-  } catch (error) {
-    console.error('❌ Upload failed:', error);
-    setNewProduct(prev => ({ ...prev, image: '' }));
-  }
-};
 
   const handleSubmitProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -191,7 +176,14 @@ function MyShop() {
         setProducts(prev => [...prev, res.data]);
       }
 
-      setNewProduct({ name: '', type: '', price: '', stock: '', image: '', description: '' });
+      setNewProduct({
+        name: '',
+        type: '',
+        price: '',
+        stock: '',
+        image: '',
+        description: '',
+      });
       setOpenPopup(false);
       setSelectedProduct(null);
     } catch (error) {
@@ -237,7 +229,14 @@ function MyShop() {
           <button
             onClick={() => {
               setSelectedProduct(null);
-              setNewProduct({ name: '', type: '', price: '', stock: '', image: '', description: '' });
+              setNewProduct({
+                name: '',
+                type: '',
+                price: '',
+                stock: '',
+                image: '',
+                description: '',
+              });
               setOpenPopup(true);
             }}
             className="flex bg-black cursor-pointer hover:bg-black/80 transition py-4 px-5 rounded-4xl text-white"
@@ -267,13 +266,17 @@ function MyShop() {
                   type="text"
                   placeholder="Name"
                   value={newProduct.name}
-                  onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
+                  onChange={e =>
+                    setNewProduct({ ...newProduct, name: e.target.value })
+                  }
                   required
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
                 />
                 <select
                   value={newProduct.type}
-                  onChange={e => setNewProduct({ ...newProduct, type: e.target.value })}
+                  onChange={e =>
+                    setNewProduct({ ...newProduct, type: e.target.value })
+                  }
                   required
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black text-center"
                 >
@@ -287,7 +290,9 @@ function MyShop() {
                   min="1"
                   placeholder="Price"
                   value={newProduct.price}
-                  onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
+                  onChange={e =>
+                    setNewProduct({ ...newProduct, price: e.target.value })
+                  }
                   required
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
                 />
@@ -296,7 +301,9 @@ function MyShop() {
                   min="1"
                   placeholder="Amount"
                   value={newProduct.stock}
-                  onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })}
+                  onChange={e =>
+                    setNewProduct({ ...newProduct, stock: e.target.value })
+                  }
                   required
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
                 />
@@ -305,27 +312,37 @@ function MyShop() {
                   <i className="flex justify-center items-center text-6xl text-gray-400 mb-5">
                     <Upload />
                   </i>
-                  <p className="text-xl font-bold text-gray-800 mb-2">Drop your product images here</p>
-                  <p className="text-sm text-gray-400 mb-8">or click to browse from your computer</p>
+                  <p className="text-xl font-bold text-gray-800 mb-2">
+                    Drop your product images here
+                  </p>
+                  <p className="text-sm text-gray-400 mb-5">
+                    or click to browse from your computer
+                  </p>
 
-                  <label className="inline-block cursor-pointer">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="hidden"
-                      required={!selectedProduct}
-                    />
-                    <span className="bg-black text-white py-3 px-6 rounded-4xl text-base transition-colors duration-200 hover:bg-black/80 focus:outline-none focus:ring-2 focus:ring-black/80 focus:ring-opacity-50">
-                      Choose Files
-                    </span>
-                  </label>
+                  <UploadButton
+                    endpoint="imageUploader"
+                    onClientUploadComplete={res => {
+                      if (res && res[0]?.ufsUrl) {
+                        setNewProduct(prev => ({
+                          ...prev,
+                          image: res[0].ufsUrl,
+                        }));
+                        alert('Upload completed!');
+                      }
+                    }}
+                    onUploadError={(error: Error) => {
+                      console.error('UploadThing error:', error.message);
+                      alert(`Upload failed: ${error.message}`);
+                    }}
+                  />
                 </div>
 
                 <textarea
                   placeholder="Write something about your product..."
                   value={newProduct.description}
-                  onChange={e => setNewProduct({ ...newProduct, description: e.target.value })}
+                  onChange={e =>
+                    setNewProduct({ ...newProduct, description: e.target.value })
+                  }
                   className="mt-1 block w-full p-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
                 />
 
@@ -338,7 +355,8 @@ function MyShop() {
                       height={200}
                       className="object-contain rounded-md border"
                       onError={e => {
-                        (e.currentTarget as HTMLImageElement).src = '/img/placeholder.png';
+                        (e.currentTarget as HTMLImageElement).src =
+                          '/img/placeholder.png';
                       }}
                     />
                   </div>
@@ -380,7 +398,7 @@ function MyShop() {
           />
         </div>
       </div>
-
+      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {products.map(product => (
           <ProductCard
@@ -406,23 +424,26 @@ function MyShop() {
   );
 }
 
-interface StatCardProps {
+const StatCard = ({
+  icon,
+  title,
+  value,
+  bg,
+}: {
   icon: React.ReactNode;
   title: string;
   value: string | number;
   bg: string;
-}
-
-const StatCard: React.FC<StatCardProps> = ({ icon, title, value, bg }) => {
-  return (
-    <div className={`p-6 rounded-2xl shadow-md flex items-center space-x-4 ${bg}`}>
-      <div className="p-3 rounded-full bg-white bg-opacity-75">{icon}</div>
-      <div>
-        <p className="text-gray-600 text-sm">{title}</p>
-        <p className="text-xl font-bold">{value}</p>
+}) => (
+  <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:scale-105 transition-all duration-300">
+    <div className="flex items-center">
+      <div className={`p-3 ${bg} rounded-lg`}>{icon}</div>
+      <div className="ml-4">
+        <p className="text-sm font-medium text-gray-600">{title}</p>
+        <p className="text-2xl font-bold text-gray-900">{value}</p>
       </div>
     </div>
-  );
-};
+  </div>
+);
 
 export default MyShop;
