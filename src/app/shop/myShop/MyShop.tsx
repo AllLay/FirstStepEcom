@@ -4,8 +4,6 @@ import { Plus, Package, DollarSign, TrendingUp, SquarePen, Trash2, X, Upload } f
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { UploadButton } from '@uploadthing/react';
-import type { OurFileRouter } from '../api/uploadthing';
 
 interface Product {
   _id: string;
@@ -101,11 +99,17 @@ function MyShop() {
     async function fetchProducts() {
       try {
         const token = localStorage.getItem('token');
-        if (!token) return;
+        if (!token) {
+          console.warn('No token found in localStorage');
+          return;
+        }
 
         const res = await axios.get(`${API_BASE}/api/items`, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
+
         setProducts(res.data);
       } catch (error) {
         console.error('Fetch error:', error);
@@ -115,10 +119,46 @@ function MyShop() {
     fetchProducts();
   }, [API_BASE]);
 
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.warn('No token found for upload');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const res = await axios.post(`${API_BASE}/api/upload`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      const imageUrl = res.data.url || res.data.imageUrl || '';
+
+      if (!imageUrl || imageUrl.trim() === '') throw new Error('Image URL not found in response.');
+
+      setNewProduct(prev => ({ ...prev, image: imageUrl }));
+    } catch (error) {
+      console.error('Upload failed:', error);
+      setNewProduct(prev => ({ ...prev, image: '' }));
+    }
+  };
+
   const handleSubmitProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     const token = localStorage.getItem('token');
-    if (!token) return;
+    if (!token) {
+      console.warn('No token found in localStorage');
+      return;
+    }
 
     const payload = {
       name: newProduct.name,
@@ -135,33 +175,50 @@ function MyShop() {
         const res = await axios.put(
           `${API_BASE}/api/items/${selectedProduct._id}`,
           payload,
-          { headers: { Authorization: `Bearer ${token}` } }
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
-        setProducts((prev) =>
-          prev.map((p) => (p._id === res.data._id ? res.data : p))
+        const updatedProduct = res.data;
+        setProducts(prev =>
+          prev.map(p => (p._id === updatedProduct._id ? updatedProduct : p))
         );
       } else {
         const res = await axios.post(`${API_BASE}/api/items`, payload, {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
-        setProducts((prev) => [...prev, res.data]);
+        setProducts(prev => [...prev, res.data]);
       }
+
       setNewProduct({ name: '', type: '', price: '', stock: '', image: '', description: '' });
       setOpenPopup(false);
       setSelectedProduct(null);
     } catch (error) {
-      console.error(error);
+      if (axios.isAxiosError(error)) {
+        console.error(error);
+      }
     }
   };
 
   const deleteProduct = async (id: string) => {
     try {
       const token = localStorage.getItem('token');
-      if (!token) return;
+      if (!token) {
+        console.warn('No token found in localStorage');
+        return;
+      }
+
       await axios.delete(`${API_BASE}/api/items/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      setProducts((prev) => prev.filter((p) => p._id !== id));
+
+      setProducts(prevProducts => prevProducts.filter(p => p._id !== id));
     } catch (error) {
       console.error(error);
     }
@@ -169,7 +226,7 @@ function MyShop() {
 
   const totalProducts = products.length;
   const totalValue = products.reduce((sum, p) => sum + p.price * p.stock, 0);
-  const activeProducts = products.filter((p) => p.status === 'active').length;
+  const activeProducts = products.filter(p => p.status === 'active').length;
 
   return (
     <main className="min-h-screen m-10">
@@ -179,107 +236,103 @@ function MyShop() {
           <p className="my-2.5">Manage your products and inventory</p>
         </div>
 
-        <button
-          onClick={() => {
-            setSelectedProduct(null);
-            setNewProduct({ name: '', type: '', price: '', stock: '', image: '', description: '' });
-            setOpenPopup(true);
-          }}
-          className="flex bg-black hover:bg-black/80 transition py-4 px-5 rounded-4xl text-white"
-        >
-          <Plus /> Add Product
-        </button>
+        <div>
+          <button
+            onClick={() => {
+              setSelectedProduct(null);
+              setNewProduct({ name: '', type: '', price: '', stock: '', image: '', description: '' });
+              setOpenPopup(true);
+            }}
+            className="flex bg-black cursor-pointer hover:bg-black/80 transition py-4 px-5 rounded-4xl text-white"
+          >
+            <Plus /> Add Product
+          </button>
+        </div>
 
         {openPopup && (
           <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-xl shadow-lg w-full max-w-md">
-              <div className="flex justify-between items-center mb-4">
+              <div className="flex flex-row justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold">
                   {selectedProduct ? 'Edit Product' : 'Add Product'}
                 </h2>
-                <button onClick={() => setOpenPopup(false)} className="text-gray-600 hover:text-black text-xl">
+                <button
+                  onClick={() => setOpenPopup(false)}
+                  className="text-gray-600 cursor-pointer hover:text-black text-xl"
+                  aria-label="Close popup"
+                >
                   <X />
                 </button>
               </div>
 
-              <form onSubmit={handleSubmitProduct} className="p-5">
+              <form className="p-5" onSubmit={handleSubmitProduct}>
                 <input
                   type="text"
                   placeholder="Name"
                   value={newProduct.name}
-                  onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+                  onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
                   required
-                  className="mt-1 block w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
                 />
-
                 <select
                   value={newProduct.type}
-                  onChange={(e) => setNewProduct({ ...newProduct, type: e.target.value })}
+                  onChange={e => setNewProduct({ ...newProduct, type: e.target.value })}
                   required
-                  className="mt-1 block w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black text-center"
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black text-center"
                 >
                   <option value="">Select a type</option>
                   <option value="T-Shirt">T-Shirt</option>
                   <option value="Shirt">Shirt</option>
                   <option value="Blouse">Blouse</option>
                 </select>
-
                 <input
                   type="number"
                   min="1"
                   placeholder="Price"
                   value={newProduct.price}
-                  onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+                  onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
                   required
-                  className="mt-1 block w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
                 />
-
                 <input
                   type="number"
                   min="1"
                   placeholder="Amount"
                   value={newProduct.stock}
-                  onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
+                  onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })}
                   required
-                  className="mt-1 block w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
+                  className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
                 />
 
-                <div className="w-full max-w-md p-6 border-2 border-dashed mt-2 rounded-lg bg-white text-center shadow-md">
+                <div className="w-full max-w-md p-6 border-2 border-dashed mt-2 border-gray-300 hover:border-black/80 rounded-lg bg-white text-center shadow-md">
                   <i className="flex justify-center items-center text-6xl text-gray-400 mb-5">
                     <Upload />
                   </i>
-                  <p className="text-xl font-bold mb-2">Drop your product images here</p>
+                  <p className="text-xl font-bold text-gray-800 mb-2">Drop your product images here</p>
                   <p className="text-sm text-gray-400 mb-8">or click to browse from your computer</p>
 
-                  <UploadButton<OurFileRouter>
-                    endpoint="productImage"
-                    onClientUploadComplete={(res) => {
-                      if (res && res[0]) {
-                        setNewProduct((prev) => ({ ...prev, image: res[0].fileUrl }));
-                      }
-                    }}
-                    onUploadError={(error) => console.error('UploadThing Error:', error)}
-                  >
-                    {({ onClick }) => (
-                      <button
-                        type="button"
-                        onClick={onClick}
-                        className="bg-black text-white py-3 px-6 rounded-4xl transition hover:bg-black/80"
-                      >
-                        Choose Files
-                      </button>
-                    )}
-                  </UploadButton>
+                  <label className="inline-block cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="hidden"
+                      required={!selectedProduct}
+                    />
+                    <span className="bg-black text-white py-3 px-6 rounded-4xl text-base transition-colors duration-200 hover:bg-black/80 focus:outline-none focus:ring-2 focus:ring-black/80 focus:ring-opacity-50">
+                      Choose Files
+                    </span>
+                  </label>
                 </div>
 
                 <textarea
                   placeholder="Write something about your product..."
                   value={newProduct.description}
-                  onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-                  className="mt-1 block w-full p-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center h-32"
+                  onChange={e => setNewProduct({ ...newProduct, description: e.target.value })}
+                  className="mt-1 block w-full p-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
                 />
 
-                {newProduct.image && newProduct.image.trim() && (
+                {newProduct.image && newProduct.image.trim() !== '' && (
                   <div className="mt-4 flex justify-center">
                     <Image
                       src={newProduct.image}
@@ -287,7 +340,7 @@ function MyShop() {
                       width={200}
                       height={200}
                       className="object-contain rounded-md border"
-                      onError={(e) => {
+                      onError={e => {
                         (e.currentTarget as HTMLImageElement).src = '/img/placeholder.png';
                       }}
                     />
@@ -297,7 +350,7 @@ function MyShop() {
                 <div className="flex justify-center mt-4">
                   <button
                     type="submit"
-                    className="bg-black hover:bg-black/80 text-white px-4 py-2 rounded-4xl transition"
+                    className="bg-black hover:bg-black/80 text-white px-4 py-2 rounded-4xl cursor-pointer transition"
                   >
                     {selectedProduct ? 'Update Product' : 'Add Product'}
                   </button>
@@ -310,26 +363,63 @@ function MyShop() {
 
       <div className="my-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <StatCard icon={<Package className="h-8 w-8 text-blue-600" />} title="Total Products" value={totalProducts} bg="bg-blue-100" />
-          <StatCard icon={<DollarSign className="h-8 w-8 text-green-600" />} title="Total Value" value={`${Intl.NumberFormat('en-US').format(totalValue)} MMK`} bg="bg-green-100" />
-          <StatCard icon={<TrendingUp className="h-8 w-8 text-purple-600" />} title="Active Products" value={activeProducts} bg="bg-purple-100" />
+          <StatCard
+            icon={<Package className="h-8 w-8 text-blue-600" />}
+            title="Total Products"
+            value={totalProducts}
+            bg="bg-blue-100"
+          />
+          <StatCard
+            icon={<DollarSign className="h-8 w-8 text-green-600" />}
+            title="Total Value"
+            value={`${Intl.NumberFormat('en-US').format(totalValue)} MMK`}
+            bg="bg-green-100"
+          />
+          <StatCard
+            icon={<TrendingUp className="h-8 w-8 text-purple-600" />}
+            title="Active Products"
+            value={activeProducts}
+            bg="bg-purple-100"
+          />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {products.map((product) => (
-          <ProductCard key={product._id} product={product} onDelete={deleteProduct} onEdit={(p) => {
-            setSelectedProduct(p);
-            setNewProduct({ name: p.name, type: p.type, price: String(p.price), stock: String(p.stock), image: p.image, description: p.description });
-            setOpenPopup(true);
-          }} />
+        {products.map(product => (
+          <ProductCard
+            key={product._id}
+            product={product}
+            onDelete={deleteProduct}
+            onEdit={p => {
+              setSelectedProduct(p);
+              setNewProduct({
+                name: p.name,
+                type: p.type,
+                price: String(p.price),
+                stock: String(p.stock),
+                image: p.image,
+                description: p.description,
+              });
+              setOpenPopup(true);
+            }}
+          />
         ))}
       </div>
     </main>
   );
 }
 
-const StatCard = ({ icon, title, value, bg }: { icon: React.ReactNode; title: string; value: string | number; bg: string; }) => (
+const StatCard = ({
+  icon,
+  title,
+  value,
+  bg,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  value: string | number;
+  bg: string;
+}) => (
   <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:scale-105 transition-all duration-300">
     <div className="flex items-center">
       <div className={`p-3 ${bg} rounded-lg`}>{icon}</div>
