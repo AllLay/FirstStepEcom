@@ -344,7 +344,7 @@ function MyShop() {
 
                         setNewProduct(prev => ({
                           ...prev,
-                          image: url,
+                          image: ufsUrl,
                           imageKey: key,
                         }));
 
