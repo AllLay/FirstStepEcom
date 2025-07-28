@@ -1,9 +1,19 @@
 'use client';
 
-import { Plus, Package, DollarSign, TrendingUp, SquarePen, Trash2, X, Upload } from 'lucide-react';
+import {
+  Plus,
+  Package,
+  DollarSign,
+  TrendingUp,
+  SquarePen,
+  Trash2,
+  X,
+  Upload,
+} from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { UploadButton } from '@/utils/uploadthing';
 
 interface Product {
   _id: string;
@@ -12,6 +22,7 @@ interface Product {
   type: string;
   stock: number;
   image: string;
+  imageKey: string;
   status: string;
   description: string;
 }
@@ -22,7 +33,11 @@ interface ProductCardProps {
   onEdit: (product: Product) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete, onEdit }) => {
+const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  onDelete,
+  onEdit,
+}) => {
   const [imgError, setImgError] = useState(false);
   const productActivity = product.stock === 0 ? 'gone' : 'active';
 
@@ -81,7 +96,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onDelete, onEdit }) 
 };
 
 function MyShop() {
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000';
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000/api';
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [openPopup, setOpenPopup] = useState(false);
@@ -92,6 +107,7 @@ function MyShop() {
     price: '',
     stock: '',
     image: '',
+    imageKey: '',
     description: '',
   });
 
@@ -104,7 +120,7 @@ function MyShop() {
           return;
         }
 
-        const res = await axios.get(`${API_BASE}/api/items`, {
+        const res = await axios.get(`${API_BASE}/items`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -118,38 +134,6 @@ function MyShop() {
 
     fetchProducts();
   }, [API_BASE]);
-
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        console.warn('No token found for upload');
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('image', file);
-
-      const res = await axios.post(`${API_BASE}/api/upload`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      const imageUrl = res.data.url || res.data.imageUrl || '';
-
-      if (!imageUrl || imageUrl.trim() === '') throw new Error('Image URL not found in response.');
-
-      setNewProduct(prev => ({ ...prev, image: imageUrl }));
-    } catch (error) {
-      console.error('Upload failed:', error);
-      setNewProduct(prev => ({ ...prev, image: '' }));
-    }
-  };
 
   const handleSubmitProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -167,13 +151,14 @@ function MyShop() {
       type: newProduct.type || 'Not Defined',
       stock: parseInt(newProduct.stock),
       image: newProduct.image,
+      imageKey: newProduct.imageKey,
       description: newProduct.description,
     };
 
     try {
       if (selectedProduct) {
         const res = await axios.put(
-          `${API_BASE}/api/items/${selectedProduct._id}`,
+          `${API_BASE}/items/${selectedProduct._id}`,
           payload,
           {
             headers: {
@@ -186,7 +171,7 @@ function MyShop() {
           prev.map(p => (p._id === updatedProduct._id ? updatedProduct : p))
         );
       } else {
-        const res = await axios.post(`${API_BASE}/api/items`, payload, {
+        const res = await axios.post(`${API_BASE}/items`, payload, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -194,7 +179,15 @@ function MyShop() {
         setProducts(prev => [...prev, res.data]);
       }
 
-      setNewProduct({ name: '', type: '', price: '', stock: '', image: '', description: '' });
+      setNewProduct({
+        name: '',
+        type: '',
+        price: '',
+        stock: '',
+        image: '',
+        imageKey: '',
+        description: '',
+      });
       setOpenPopup(false);
       setSelectedProduct(null);
     } catch (error) {
@@ -212,15 +205,26 @@ function MyShop() {
         return;
       }
 
+      const productToDelete = products.find(p => p._id === id);
+      const imageKey = productToDelete?.imageKey;
+
       await axios.delete(`${API_BASE}/api/items/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      setProducts(prevProducts => prevProducts.filter(p => p._id !== id));
+      
+      if (imageKey) {
+        await fetch('/api/uploadthing/delete', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: imageKey }),
+        });
+      }
+      
+      setProducts(prev => prev.filter(p => p._id !== id));
     } catch (error) {
-      console.error(error);
+      console.error('Error deleting product or image:', error);
     }
   };
 
@@ -240,7 +244,15 @@ function MyShop() {
           <button
             onClick={() => {
               setSelectedProduct(null);
-              setNewProduct({ name: '', type: '', price: '', stock: '', image: '', description: '' });
+              setNewProduct({
+                name: '',
+                type: '',
+                price: '',
+                stock: '',
+                image: '',
+                imageKey: '',
+                description: '',
+              });
               setOpenPopup(true);
             }}
             className="flex bg-black cursor-pointer hover:bg-black/80 transition py-4 px-5 rounded-4xl text-white"
@@ -270,13 +282,17 @@ function MyShop() {
                   type="text"
                   placeholder="Name"
                   value={newProduct.name}
-                  onChange={e => setNewProduct({ ...newProduct, name: e.target.value })}
+                  onChange={e =>
+                    setNewProduct({ ...newProduct, name: e.target.value })
+                  }
                   required
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
                 />
                 <select
                   value={newProduct.type}
-                  onChange={e => setNewProduct({ ...newProduct, type: e.target.value })}
+                  onChange={e =>
+                    setNewProduct({ ...newProduct, type: e.target.value })
+                  }
                   required
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black text-center"
                 >
@@ -290,7 +306,9 @@ function MyShop() {
                   min="1"
                   placeholder="Price"
                   value={newProduct.price}
-                  onChange={e => setNewProduct({ ...newProduct, price: e.target.value })}
+                  onChange={e =>
+                    setNewProduct({ ...newProduct, price: e.target.value })
+                  }
                   required
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
                 />
@@ -299,7 +317,9 @@ function MyShop() {
                   min="1"
                   placeholder="Amount"
                   value={newProduct.stock}
-                  onChange={e => setNewProduct({ ...newProduct, stock: e.target.value })}
+                  onChange={e =>
+                    setNewProduct({ ...newProduct, stock: e.target.value })
+                  }
                   required
                   className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
                 />
@@ -308,27 +328,37 @@ function MyShop() {
                   <i className="flex justify-center items-center text-6xl text-gray-400 mb-5">
                     <Upload />
                   </i>
-                  <p className="text-xl font-bold text-gray-800 mb-2">Drop your product images here</p>
-                  <p className="text-sm text-gray-400 mb-8">or click to browse from your computer</p>
+                  <p className="text-xl font-bold text-gray-800 mb-2">
+                    Drop your product images here
+                  </p>
+                  <p className="text-sm text-gray-400 mb-5">
+                    or click to browse from your computer
+                  </p>
 
-                  <label className="inline-block cursor-pointer">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="hidden"
-                      required={!selectedProduct}
-                    />
-                    <span className="bg-black text-white py-3 px-6 rounded-4xl text-base transition-colors duration-200 hover:bg-black/80 focus:outline-none focus:ring-2 focus:ring-black/80 focus:ring-opacity-50">
-                      Choose Files
-                    </span>
-                  </label>
+                  <UploadButton
+                    endpoint="imageUploader"
+                    onClientUploadComplete={res => {
+                      if (res && res[0]) {
+                        const { url, key } = res[0];
+
+                        setNewProduct(prev => ({
+                          ...prev,
+                          image: url,
+                          imageKey: key,
+                        }));
+
+                        alert('Upload completed!');
+                      }
+                    }}
+                  />
                 </div>
 
                 <textarea
                   placeholder="Write something about your product..."
                   value={newProduct.description}
-                  onChange={e => setNewProduct({ ...newProduct, description: e.target.value })}
+                  onChange={e =>
+                    setNewProduct({ ...newProduct, description: e.target.value })
+                  }
                   className="mt-1 block w-full p-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black placeholder:text-center"
                 />
 
@@ -341,7 +371,8 @@ function MyShop() {
                       height={200}
                       className="object-contain rounded-md border"
                       onError={e => {
-                        (e.currentTarget as HTMLImageElement).src = '/img/placeholder.png';
+                        (e.currentTarget as HTMLImageElement).src =
+                          '/img/placeholder.png';
                       }}
                     />
                   </div>
@@ -383,7 +414,7 @@ function MyShop() {
           />
         </div>
       </div>
-
+      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {products.map(product => (
           <ProductCard
@@ -398,6 +429,7 @@ function MyShop() {
                 price: String(p.price),
                 stock: String(p.stock),
                 image: p.image,
+                imageKey: p.imageKey || '',
                 description: p.description,
               });
               setOpenPopup(true);
@@ -420,12 +452,18 @@ const StatCard = ({
   value: string | number;
   bg: string;
 }) => (
-  <div className="bg-white p-6 rounded-xl shadow-md border border-gray-100 hover:scale-105 transition-all duration-300">
-    <div className="flex items-center">
-      <div className={`p-3 ${bg} rounded-lg`}>{icon}</div>
-      <div className="ml-4">
-        <p className="text-sm font-medium text-gray-600">{title}</p>
-        <p className="text-2xl font-bold text-gray-900">{value}</p>
+  <div
+    className={`relative p-6 rounded-2xl shadow-md border border-gray-200 hover:shadow-xl hover:scale-[1.03] transition-transform duration-300 ${bg}`}
+  >
+    <div className="flex items-center space-x-4">
+      <div className="p-3 rounded-full bg-white text-black shadow-inner shadow-black/10">
+        {icon}
+      </div>
+      <div>
+        <p className="text-sm font-semibold text-gray-600 tracking-wide uppercase">
+          {title}
+        </p>
+        <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
       </div>
     </div>
   </div>

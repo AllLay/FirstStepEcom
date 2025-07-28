@@ -1,7 +1,7 @@
 import { MongoClient, ObjectId } from "mongodb";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
+import AddToCartButton from "@/components/AddToCartButton";
 
 const uri = process.env.MONGODB_URI!;
 
@@ -21,12 +21,20 @@ export default async function ProductDetailPage({
   let product;
   try {
     const objectId = new ObjectId(params.id);
-    product = await db.collection("products").findOne({ _id: objectId });
+    const doc = await db.collection("products").findOne({ _id: objectId });
+    if (!doc) return notFound();
+
+    product = {
+      _id: doc._id.toString(),
+      name: doc.name,
+      price: doc.price,
+      image: doc.image,
+      description: doc.description,
+      type: doc.type,
+    };
   } catch (err) {
     return notFound();
   }
-
-  if (!product) return notFound();
 
   return (
     <div className="min-h-screen max-w-4xl mx-auto p-10">
@@ -46,11 +54,10 @@ export default async function ProductDetailPage({
           </p>
           <p className="text-sm text-gray-500 mb-6">Type: {product.type}</p>
 
-          <Link href={`/checkout/${product._id}`}>
-            <button className="bg-black text-white px-6 py-3 rounded-xl hover:bg-black/80 transition">
-              Buy Now
-            </button>
-          </Link>
+          <AddToCartButton
+            product={product}
+            className="bg-black text-white px-6 py-3 rounded-xl hover:bg-black/80 transition"
+          />
         </div>
       </div>
     </div>

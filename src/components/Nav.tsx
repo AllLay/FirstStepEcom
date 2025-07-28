@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import AuthForm from './AuthForm';
+import { useCart } from './CartContext';
 
 function Nav() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -14,6 +15,7 @@ function Nav() {
   const [openPopup, setOpenPopup] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const { cartCount } = useCart();
 
   const pathname = usePathname();
   const router = useRouter();
@@ -63,7 +65,14 @@ function Nav() {
           </ul>
 
           <div className="hidden md:flex space-x-6">
-            <i className="size-6 cursor-pointer list-none"><FontAwesomeIcon icon={faCartShopping} /></i>
+            <Link href="/CheckOut" className="size-6 cursor-pointer list-none relative">
+              <FontAwesomeIcon icon={faCartShopping} />
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 text-xs bg-red-600 text-white px-1.5 py-0.5 rounded-full">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
             <FontAwesomeIcon
               icon={faUser}
               className="cursor-pointer size-5 pt-1 list-none"
