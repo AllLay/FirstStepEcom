@@ -1,10 +1,17 @@
 import { NextResponse } from 'next/server';
 import { UTApi } from 'uploadthing/server';
 
-const utapi = new UTApi();
+const UPLOADTHING_TOKEN = process.env.UPLOADTHING_TOKEN || '';
+
+const utapi = new UTApi({
+  apiKey: UPLOADTHING_TOKEN,
+});
 
 export async function DELETE(req: Request) {
   try {
+    console.log('UploadThing DELETE route called');
+    console.log('Using UploadThing token:', Boolean(UPLOADTHING_TOKEN));
+
     const { key } = await req.json();
 
     console.log('Received key for deletion:', key);
@@ -18,8 +25,8 @@ export async function DELETE(req: Request) {
     console.log('Deleted files response:', deleted);
 
     return NextResponse.json({ success: true, deleted });
-  } catch (error) {
-    console.error('UploadThing delete error:', error);
-    return NextResponse.json({ error: 'Failed to delete file' }, { status: 500 });
+  } catch (error: any) {
+    console.error('UploadThing delete error:', error.message, error.stack);
+    return NextResponse.json({ error: error.message || 'Failed to delete file' }, { status: 500 });
   }
 }
