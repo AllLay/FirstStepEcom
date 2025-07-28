@@ -208,7 +208,7 @@ function MyShop() {
       const productToDelete = products.find(p => p._id === id);
       const imageKey = productToDelete?.imageKey;
 
-      await axios.delete(`${API_BASE}/api/items/${id}`, {
+      await axios.delete(`${API_BASE}/items/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
