@@ -53,6 +53,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           alt={product.name}
           width={250}
           height={250}
+          unoptimized={true}
           onError={() => setImgError(true)}
           className="object-contain"
         />
