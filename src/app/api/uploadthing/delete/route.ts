@@ -21,9 +21,13 @@ export async function DELETE(req: Request) {
     }
 
     const deleted = await utapi.deleteFiles(Array.isArray(key) ? key : [key]);
-
     console.log('Deleted files response:', deleted);
-
+    
+    if (deleted?.error) {
+      console.error('UploadThing API error:', deleted.error);
+      return NextResponse.json({ error: deleted.error }, { status: 500 });
+    }
+    
     return NextResponse.json({ success: true, deleted });
   } catch (error: any) {
     console.error('UploadThing delete error:', error.message, error.stack);
