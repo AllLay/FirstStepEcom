@@ -205,24 +205,28 @@ function MyShop() {
         console.warn('No token found in localStorage');
         return;
       }
-
+  
       const productToDelete = products.find(p => p._id === id);
       const imageKey = productToDelete?.imageKey;
-
+  
       await axios.delete(`${API_BASE}/items/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      
+  
       if (imageKey) {
-        await fetch('/api/uploadthing/delete', {
+        const res = await fetch('/api/uploadthing/delete', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ key: imageKey }),
         });
+        const data = await res.json();
+        if (!res.ok) {
+          alert(`Failed to delete file: ${data.error}`);
+        }
       }
-      
+  
       setProducts(prev => prev.filter(p => p._id !== id));
     } catch (error) {
       console.error('Error deleting product or image:', error);
