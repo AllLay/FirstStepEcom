@@ -342,16 +342,14 @@ function MyShop() {
 
                   <UploadButton
                     endpoint="imageUploader"
-                    onClientUploadComplete={res => {
+                      onClientUploadComplete={res => {
                       if (res && res[0]) {
-                        const { url, key } = res[0];
-
+                        const { ufsUrl, key } = res[0];
                         setNewProduct(prev => ({
                           ...prev,
-                          image: url,
+                          image: ufsUrl,
                           imageKey: key,
                         }));
-
                         alert('Upload completed!');
                       }
                     }}
