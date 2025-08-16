@@ -27,7 +27,7 @@ interface Product {
   description: string;
 }
 
-interface ProductCardProps {
+interface ProductCardProps {  
   product: Product;
   onDelete: (id: string) => void;
   onEdit: (product: Product) => void;
@@ -96,7 +96,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 };
 
 function MyShop() {
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:5000/api';
+  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [openPopup, setOpenPopup] = useState(false);
@@ -111,7 +111,7 @@ function MyShop() {
     description: '',
   });
 
-  useEffect(() => {
+  useEffect(() => { 
     async function fetchProducts() {
       try {
         const token = localStorage.getItem('token');
@@ -208,7 +208,7 @@ function MyShop() {
       const productToDelete = products.find(p => p._id === id);
       const imageKey = productToDelete?.imageKey;
 
-      await axios.delete(`${API_BASE}/api/items/${id}`, {
+      await axios.delete(`${API_BASE}/items/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
