@@ -27,7 +27,7 @@ interface Product {
   description: string;
 }
 
-interface ProductCardProps {  
+interface ProductCardProps {
   product: Product;
   onDelete: (id: string) => void;
   onEdit: (product: Product) => void;
@@ -96,7 +96,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 };
 
 function MyShop() {
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  const API_BASE = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [openPopup, setOpenPopup] = useState(false);
